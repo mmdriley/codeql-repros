@@ -10,11 +10,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Clang tip-of-tree
-        run: |
-          curl https://apt.llvm.org/llvm.sh -o /tmp/llvm.sh
-          chmod +x /tmp/llvm.sh
-          sudo /tmp/llvm.sh 19
+      # - name: Install Clang tip-of-tree
+      #   run: |
+      #     curl https://apt.llvm.org/llvm.sh -o /tmp/llvm.sh
+      #     chmod +x /tmp/llvm.sh
+      #     sudo /tmp/llvm.sh 19
+
+      - name: Find CodeQL CLI
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const tc = require(`@actions/tool-cache`);
+            const codeQLPath = await tc.find(`CodeQL`, `*`);
+            console.log(codeQLPath);
+            core.addPath(codeQLPath);
 
       - name: Show versions
         run: |
