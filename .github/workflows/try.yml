@@ -14,16 +14,17 @@ jobs:
         run: |
           npm install @actions/tool-cache
 
-      - name: Find CodeQL CLI
+      - name: Add CodeQL CLI to PATH
         uses: actions/github-script@v7
         with:
           script: |
+            const path = require(`path`);
             const tc = require(`@actions/tool-cache`);
-            const codeQLPath = await tc.find(`CodeQL`, `*`);
-            console.log(codeQLPath);
-            core.addPath(codeQLPath);
 
-      - name: Install Clang tip-of-tree
+            const codeQLPath = await tc.find(`CodeQL`, `*`);
+            core.addPath(path.join(codeQLPath, `codeql`));
+
+      - name: Install Clang 19 from tip-of-tree
         run: |
           curl https://apt.llvm.org/llvm.sh -o /tmp/llvm.sh
           chmod +x /tmp/llvm.sh
@@ -31,7 +32,10 @@ jobs:
 
       - name: Show versions
         run: |
+          which clang-19
           clang-19 --version
+
+          which codeql
           codeql --version
 
 #
