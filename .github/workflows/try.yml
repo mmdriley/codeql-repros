@@ -1,10 +1,10 @@
-name: Try repro case
+name: Try repro cases
 
 on: push
 
 jobs:
   try:
-    name: Try repro case
+    name: Try repro cases
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout
@@ -25,17 +25,33 @@ jobs:
             core.addPath(path.join(codeQLPath, `codeql`));
 
       - name: Install Clang 19 from tip-of-tree
+        env:
+          LLVM_SH: ${{ runner.temp }}/llvm.sh
         run: |
-          curl https://apt.llvm.org/llvm.sh -o /tmp/llvm.sh
-          chmod +x /tmp/llvm.sh
-          sudo /tmp/llvm.sh 19
+          curl https://apt.llvm.org/llvm.sh -o "${LLVM_SH}"
+          chmod +x "${LLVM_SH}"
+          sudo "${LLVM_SH}" 19
 
-      - name: Show versions
+      - name: Show tool versions
         run: |
           which clang-19
           clang-19 --version
 
           which codeql
           codeql --version
+
+      - name: Build database
+        env:
+          CODEQL_DB: ${{ runner.temp }}/test-cc
+        run: |
+          codeql database init "${CODEQL_DB}" --source-root=${PWD} --language=cpp
+          for f in test*.c*; do
+            codeql database trace-command -- "${CODEQL_DB}" clang-19 "${f}" -c -o /dev/null
+          done
+          codeql database finalize "${CODEQL_DB}"
+
+      - name: Print extractor logs
+        run: |
+          find "${CODEQL_DB}/log/extractor" -name '*.log' | xargs cat
 
 #
