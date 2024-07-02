@@ -1,0 +1,11 @@
+name: Try repro case
+
+on: push
+
+jobs:
+  try:
+    name: Try repro case
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
