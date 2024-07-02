@@ -24,18 +24,23 @@ jobs:
             const codeQLPath = await tc.find(`CodeQL`, `*`);
             core.addPath(path.join(codeQLPath, `codeql`));
 
-      - name: Install Clang 19 from tip-of-tree
+      - name: Install Clang 18
         env:
           LLVM_SH: ${{ runner.temp }}/llvm.sh
         run: |
           curl https://apt.llvm.org/llvm.sh -o "${LLVM_SH}"
           chmod +x "${LLVM_SH}"
-          sudo "${LLVM_SH}" 19
+          sudo "${LLVM_SH}" 18
 
+      # list of installed software:
+      #   https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2204-Readme.md
       - name: Show tool versions
         run: |
-          which clang-19
-          clang-19 --version
+          which clang-15
+          clang-15 --version
+
+          which clang-18
+          clang-18 --version
 
           which codeql
           codeql --version
@@ -45,9 +50,8 @@ jobs:
           CODEQL_DB: ${{ runner.temp }}/test-cc
         run: |
           codeql database init "${CODEQL_DB}" --source-root=${PWD} --language=cpp
-          for f in test*.c*; do
-            codeql database trace-command -- "${CODEQL_DB}" clang-19 "${f}" -c -o /dev/null
-          done
+          codeql database trace-command -- "${CODEQL_DB}" clang-15 test01.cc -c -o /dev/null
+          codeql database trace-command -- "${CODEQL_DB}" clang-18 test02.c -c -o /dev/null
           codeql database finalize "${CODEQL_DB}"
 
       - name: Print extractor logs
