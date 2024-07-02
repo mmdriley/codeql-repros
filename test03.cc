@@ -1,4 +1,4 @@
-# https://godbolt.org/z/1Ed7bo16j
+// https://godbolt.org/z/1Ed7bo16j
 
 #include <cstddef>
 #include <type_traits>
