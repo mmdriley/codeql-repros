@@ -51,6 +51,8 @@ jobs:
           codeql database finalize "${CODEQL_DB}"
 
       - name: Print extractor logs
+        env:
+          CODEQL_DB: ${{ runner.temp }}/test-cc
         run: |
           find "${CODEQL_DB}/log/extractor" -name '*.log' | xargs cat
 
