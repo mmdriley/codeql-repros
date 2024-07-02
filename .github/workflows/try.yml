@@ -50,8 +50,11 @@ jobs:
           CODEQL_DB: ${{ runner.temp }}/test-cc
         run: |
           codeql database init "${CODEQL_DB}" --source-root=${PWD} --language=cpp
-          codeql database trace-command -- "${CODEQL_DB}" clang-15 test01.cc -c -o /dev/null
-          codeql database trace-command -- "${CODEQL_DB}" clang-18 test02.c -c -o /dev/null
+          for testfile in test*.c*; do
+            # get compiler from comment in the file
+            compiler=$(grep '^// compiler: ' "${testfile}" | cut -c14-)
+            codeql database trace-command -- "${CODEQL_DB}" ${compiler} "${testfile}" -c -o /dev/null
+          done
           codeql database finalize "${CODEQL_DB}"
 
       - name: Print extractor logs
