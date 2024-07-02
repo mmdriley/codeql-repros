@@ -16,6 +16,10 @@ jobs:
       #     chmod +x /tmp/llvm.sh
       #     sudo /tmp/llvm.sh 19
 
+      - name: Install Node dependencies
+        run: |
+          npm install @actions/tool-cache
+
       - name: Find CodeQL CLI
         uses: actions/github-script@v7
         with:
