@@ -54,6 +54,14 @@ jobs:
         env:
           CODEQL_DB: ${{ runner.temp }}/test-cc
         run: |
-          find "${CODEQL_DB}/log/extractor" -name '*.log' | xargs cat
+          for logfile in $(find "${CODEQL_DB}/log/extractor" -name '*.log'); do
+            echo -n "::group::"
+            # guess at the input filename from the log file
+            egrep --only-matching --max-count=1 'test[a-z0-9]*\.c[a-z]*' "${logfile}"
+
+            cat "${logfile}"
+
+            echo "::endgroup::"
+          done
 
 #
